@@ -12,5 +12,7 @@
 class Comment < ApplicationRecord
   belongs_to :author, :class_name => "User", :foreign_key => "author_id"
   belongs_to :photo, :class_name => "Photo", :foreign_key => "photo_id"
- 
+
+  validates :photo, :presence => true
+  validates :author, :presence => true
 end

@@ -5,7 +5,7 @@
 #  id             :integer          not null, primary key
 #  caption        :text
 #  comments_count :integer
-#  image          :string 
+#  image          :string
 #  likes_count    :integer
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
@@ -16,9 +16,8 @@ class Photo < ApplicationRecord
   has_many :likes, :class_name => "Like", :foreign_key => "photo_id"
   has_many :comments, :class_name => "Comment", :foreign_key => "photo_id"
 
-  validates :caption, :presence => true
+  # validates :caption, :presence => true
   validates :image, :presence => true
 
-  mount_uploader :image, ImageUploader 
-  
+  mount_uploader :image, ImageUploader
 end
