@@ -1,0 +1,58 @@
+<h1>List of photos</h1>
+
+<form action="/insert_photo" method="post" enctype="multipart/form-data">
+
+  <label for="image">Image</label>
+  <input id="image" type="file" name="query_image">
+
+  <label for="caption">Caption</label>
+  <textarea id="caption" placeholder="Enter a caption for the photo..." name="query_caption"></textarea>
+
+  <button>Add photo</button>
+  
+</form>
+
+<hr>
+
+<table border="1">
+
+  <tr>
+
+    <th><b>Image</b></th>
+
+    <th><b>Caption</b></th>
+
+    <th><b>Owner</b></th>
+
+    <th><b>Posted</b></th>
+
+    <th><b>Likes</b></th>
+
+    <th></th>
+
+  </tr>
+
+  <% @photos.each do |photo|%>
+  
+    <% if photo.owner.private == false %> 
+    <tr>
+
+      <td> <img src="<%= photo.image %>"> </td>
+
+      <td> <%= photo.caption %> </td>
+
+      <td> <%= photo.owner.username %> </td>
+
+      <td> <%= time_ago_in_words(photo.created_at) %> ago </td>
+
+      <td> <%= photo.likes_count %> </td>
+
+      <td> <a href="/photos/<%= photo.id %>"> Show details </a> </td>
+
+    </tr>
+
+    <% end %> 
+
+  <% end %>
+  
+</table>

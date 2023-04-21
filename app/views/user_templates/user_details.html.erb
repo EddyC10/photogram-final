@@ -1,0 +1,184 @@
+<dl>
+
+  <dt>Private</dt>
+
+  <dd> <%= @matching_user.private %> </dd>
+
+  <dt>Followers</dt>
+
+  <% if @matching_user.follow_requests.where({ :status => "accepted"}) == nil %>
+
+  <dd> 0 </dd>
+
+  <% else %>
+
+  <dd>
+
+    <%= @matching_user.follow_requests.where({ :status => "accepted"}).count %>
+
+    <% session_id = @current_user.id %>
+    
+    <% if @matching_user.follow_requests.where( :sender_id => session_id ).at(0) == nil %>
+
+    <form action="/insert_follow_request" method="post">
+
+      <input type="hidden" name="query_recipient_id" value="<% @matching_user.id %>">
+      <input type="hidden" name="query_status" value="pending">
+
+      <button>Follow</button>
+
+    </form>
+
+    <% else %>
+
+    <% if @matching_user.follow_requests.where( :sender_id => session_id ).at(0).status == "accepted" %>
+
+    <br> <a href="">Unfollow</a>
+
+    <% else %>
+
+    <form action="/insert_follow_request" method="post">
+
+      <input type="hidden" name="query_recipient_id" value="<% @matching_user.id %>">
+      <input type="hidden" name="query_status" value="pending">
+
+      <button>Follow</button>
+
+    </form>
+
+    <% end %>
+
+  <% end %>
+  
+  <% end %>
+
+  </dd>
+
+  <% if @matching_user.id == session.fetch(:user_id) %>
+
+    <dt><h4>Pending follow requests</h4></dt>
+  
+
+    <dd>
+
+      <ul>
+        <% @matching_user.follow_requests.each do |request| %>
+
+        <% if request.status == "pending" %>
+
+        <li><%= request.sender.username %></li>
+
+        <form action="">
+
+          <button>Accept</button>
+
+        </form>
+
+        <form action="">
+
+          <button>Reject</button>
+
+        </form>
+
+        <% end %>
+
+        <% end %>
+
+      </ul>
+
+
+    </dd>
+  <% end %>
+
+
+  <dt>Following</dt>
+
+    <dd> <%= FollowRequest.where({ :sender_id => @matching_user.id }).where({ :status => "accepted" }).count %> </dd>
+
+
+  <% if @matching_user.id == session.fetch(:user_id) %>
+
+  <dt>Edit User</dt>
+
+    <dd>
+
+      <form action="">
+
+        <label for="username">Username</label>
+        <input id="username" name="query_username" value="<%= @matching_user.username %>">
+
+
+        <label for="private">Private?</label>
+        <input id="private" type="checkbox" name="query_private">
+
+        <button>Update User</button>
+
+      </form>
+
+    </dd>
+
+  <% end %>
+
+
+  <nav>
+
+    <ul>
+
+      <li><a href="/users/<%= @matching_user.username %>/">Profile</a></li>
+
+      <li><a href="/users/<%= @matching_user.username %>/liked_photos">Liked photos</a></li>
+
+      <li><a href="/users/<%= @matching_user.username %>/feed">Feed</a></li>
+
+      <li><a href="/users/<%= @matching_user.username %>/discover">Discover</a></li>
+
+    </ul>
+
+  </nav>
+
+</dl>
+
+
+
+<h2>Own photos (<%= @matching_user.photos.count %>)</h2>
+
+<table border="1">
+
+  <tr>
+
+    <th><b>Image</b></th>
+
+    <th><b>Owner</b></th>
+
+    <th><b>Caption</b></th>
+
+    <th><b>Posted</b></th>
+
+    <th><b>Likes</b></th>
+
+    <th></th>
+
+  </tr>
+
+
+  <% @matching_user.photos.order({ :likes_count => :desc }).each do |photo| %>
+
+  <tr>
+
+    <td><img src="<%= photo.image %>"></td>
+
+    <td><%= photo.owner.username %></td>
+
+    <td><%= photo.caption %></td>
+
+    <td><%= time_ago_in_words(photo.created_at) %> ago</td>
+
+    <td><%= photo.likes_count %></td>
+
+    <td><a href="/photos/<%= photo.id %>">Show details</a></td>
+
+  </tr>
+
+  <% end %>
+
+</table>

@@ -1,0 +1,142 @@
+<h1>Photo Details</h1>
+
+<dl>
+
+  <dt>Image</dt>
+  <dd> <img src="<%= @photo.image %>"> </dd>
+
+  <dt>Caption</dt>
+  <dd> <%= @photo.caption %> </dd>
+
+  <dt>Owner</dt>
+  <dd> <%= @photo.owner.username %> </dd>
+
+  <dt>Posted</dt>
+  <dd> <%= time_ago_in_words(@photo.created_at) %> ago </dd>
+
+  <dt>Likes count</dt>
+  <dd> <%= @photo.likes_count %> </dd>
+
+  <dt>Comments count</dt>
+  <dd> <%= @photo.comments_count %> </dd>
+
+  <dt>Fans</dt>
+
+  <dd>
+
+      <% @photo.likes.each do |like| %>
+
+        <%= like.fan.username %>
+
+      <% end %>
+
+  </dd>
+
+  <dt>Add a fan</dt>
+
+  <dd>
+
+    <form action="/user_liked_image" method="post">
+
+      <input type="hidden" name="query_photo_id" value="<%= @photo.id %>">
+
+      <% user_id = @current_user.id %>
+
+      <% liked_photo = Like.where({ :fan_id => user_id })%>
+      
+      <% liked_photo = liked_photo.where({ :photo_id => @photo.id}).at(0)%>
+      
+      <% if liked_photo == nil %>
+
+        <button>Like</button>
+
+      <% else %>
+
+          <% if @current_user.id != liked_photo.fan_id %>
+
+            <button>Like</button>
+
+          <% else %>
+
+            <a href="/user_unliked_image/<%= @photo.id %>">Unlike</a>
+
+          <% end %>
+
+      <% end %>
+ 
+    </form>
+
+  </dd>
+
+
+<% if @photo.owner.id == session.fetch(:user_id) %>
+
+  <dt>Edit photo</dt>
+
+  <dd>
+
+    <form>
+
+      <label for="image">Image URL</label>
+      <input id="image" type="file" name="query_image">
+      
+      <label for="caption">Caption</label>
+      <textarea id="caption" name="query_caption" placeholder="<%= @photo.caption %>"></textarea>
+
+      <button>Update photo</button>
+
+    </form>
+
+  </dd>
+
+  <dt>Delete photo</dt>
+
+  <dd><a href="/user_delete_photo/<%= @photo.id %>"> Delete this photo </a></dd>
+
+<% end %>
+
+</dl>
+
+<h2>Comments</h2>
+
+<table>
+
+  <tr>
+
+    <th><b>Commenter</b></th>
+
+    <th><b>Comment</b></th>
+
+    <th><b>Posted</b></th>
+    
+  </tr>
+
+
+  <% @photo.comments.order( :created_at => :asc ).each do |comment|  %>
+
+    <tr>
+
+      <td> <%= comment.author.username %> </td>
+  
+      <td> <%= comment.body %> </td>
+
+      <td> <%= time_ago_in_words(comment.updated_at) %> ago </td>
+
+    </tr>
+
+  <% end %>
+
+</table>
+
+<h3>Add a new comment </h3>
+
+<form action="/insert_comment" method="post">
+
+  <input type="hidden" name="query_photo_id" value="<%= @photo.id %>">
+
+  <label for="comment"> Comment </label>
+  <textarea id="comment" placeholder="Enter a comment..." name="query_comment"></textarea>
+
+  <button>Add comment</button>
+
+</form>
